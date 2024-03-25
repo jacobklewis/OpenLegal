@@ -2,15 +2,15 @@ import mongoose from "mongoose";
 let Project = mongoose.model("Project");
 
 const ignoredPaths = [
-  { path: "/status", methods: ["all"] },
-  { path: "/locales", methods: ["all"] },
+  { path: "/status", methods: ["all"], exact: true },
+  { path: "/locales", methods: ["all"], exact: true },
 ];
 const isAuthorized = async function (req, res, next) {
   let ignore = false;
   ignoredPaths.forEach((path) => {
     let regEx = new RegExp(path.path);
     if (
-      regEx.test(req.url) &&
+      (path.exact ? path.path == req.path : regEx.test(req.url)) &&
       (path.methods[0] == "all" || path.methods.includes(req.method))
     ) {
       ignore = true;
@@ -23,9 +23,11 @@ const isAuthorized = async function (req, res, next) {
 
   const token = req.get("x-api-key");
   try {
+    // console.log("token:" + token);
     const project = await Project.findOne({
       token: token,
     }).exec();
+    // console.log("proj:" + project);
     if (project) {
       req.project = project;
     }

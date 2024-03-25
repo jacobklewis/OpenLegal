@@ -124,21 +124,29 @@ exports.getDocLocales = async function (req, res) {
       archived: false,
     }).exec();
     const allRegions = docVariants
-      .reduce((prev, curr, i, arr) => {
+      .reduce((arr, curr) => {
         if (arr.indexOf(curr.regionCode) === -1) {
           arr.push(curr.regionCode);
         }
         return arr;
       }, [])
-      .map((regCode) => regions.find((x) => x.code == regCode));
+      .map((regCode) =>
+        regions.find(
+          (x) => x.code.toLocaleLowerCase() == regCode.toLocaleLowerCase()
+        )
+      );
     const allLanguages = docVariants
-      .reduce((prev, curr, i, arr) => {
+      .reduce((arr, curr) => {
         if (arr.indexOf(curr.languageCode) === -1) {
           arr.push(curr.languageCode);
         }
         return arr;
       }, [])
-      .map((langCode) => languages.find((x) => x.code == langCode));
+      .map((langCode) =>
+        languages.find(
+          (x) => x.code.toLocaleLowerCase() == langCode.toLocaleLowerCase()
+        )
+      );
     res.json({
       regions: allRegions,
       languages: allLanguages,
