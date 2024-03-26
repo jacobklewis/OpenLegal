@@ -1,50 +1,58 @@
-import { randomUUID } from "crypto";
-import { stringify, parse } from "querystring";
 import regions from "../boot/regions";
 import languages from "../boot/languages";
 import mongoose from "mongoose";
+import { getRegionLanguages } from "../boot/localeTools";
 let Doc = mongoose.model("Doc");
-let Project = mongoose.model("Project");
 
-// TODO: Add query params for filtering by region/language
+
 exports.getAllDocs = async function (req, res) {
   try {
-    const docs = await Doc.find({
+    const regionCode = req.query.region?.toLocaleLowerCase();
+    const languageCode = req.query.language?.toLocaleLowerCase();
+    if (regionCode && !regions.find((r)=>r.code.toLocaleLowerCase() == regionCode)) {
+      res.status(400).send({
+        status: "document region not valid",
+      });
+      return;
+    }
+    if (languageCode && !languages.find((l)=>l.code.toLocaleLowerCase() == languageCode)) {
+      res.status(400).send({
+        status: "document language not valid",
+      });
+      return;
+    }
+    const q = {
       projectId: req.project.id,
       archived: false,
-    }).exec();
+    }
+    if (regionCode){
+      q["regionCode"] = regionCode
+    }
+    if (languageCode){
+      q["languageCode"] = languageCode
+    }
+    const docs = await Doc.find(q).exec();
     res.json(docs);
   } catch (err) {
     console.log(err);
     res.send(err);
   }
 };
-// TODO: nest languages in regions
+
 exports.getProjectLocales = async function (req, res) {
   try {
     const docs = await Doc.find({
       projectId: req.project.id,
       archived: false,
     }).exec();
-    const allRegions = docs
-      .reduce((prev, curr, i, arr) => {
-        if (arr.indexOf(curr.regionCode) === -1) {
-          arr.push(curr.regionCode);
-        }
-        return arr;
-      }, [])
-      .map((regCode) => regions.find((x) => x.code == regCode));
-    const allLanguages = docs
-      .reduce((prev, curr, i, arr) => {
-        if (arr.indexOf(curr.languageCode) === -1) {
-          arr.push(curr.languageCode);
-        }
-        return arr;
-      }, [])
-      .map((langCode) => languages.find((x) => x.code == langCode));
+    if (docs.length == 0) {
+      res.status(404).send({
+        status: "no locales found",
+      });
+      return;
+    }
     res.json({
-      regions: allRegions,
-      languages: allLanguages,
+      regions: getRegionLanguages(docs),
     });
   } catch (err) {
     console.log(err);
@@ -57,10 +65,16 @@ exports.getDoc = async function (req, res) {
     const doc = await Doc.findOne({
       projectId: req.project.id,
       id: req.params.docId,
-      regionCode: req.params.regionCode,
-      languageCode: req.params.languageCode,
+      regionCode: req.params.regionCode.toLocaleLowerCase(),
+      languageCode: req.params.languageCode.toLocaleLowerCase(),
       archived: false,
     }).exec();
+    if (!doc) {
+      res.status(404).send({
+        status: "doc not found",
+      });
+      return;
+    }
     res.json(doc);
   } catch (err) {
     console.log(err);
@@ -72,12 +86,24 @@ exports.updateDoc = async function (req, res) {
   try {
     const projectId = req.project.id;
     const docId = req.params.docId;
-    const regionCode = req.params.regionCode;
-    const languageCode = req.params.languageCode;
+    const regionCode = req.params.regionCode.toLocaleLowerCase();
+    const languageCode = req.params.languageCode.toLocaleLowerCase();
 
     if (req.project.documentIds.indexOf(docId) === -1) {
       res.status(400).send({
         status: "document id not registered with project",
+      });
+      return;
+    }
+    if (regions.find((r)=>r.code.toLocaleLowerCase() == regionCode) === undefined) {
+      res.status(400).send({
+        status: "document region not valid",
+      });
+      return;
+    }
+    if (languages.find((l)=>l.code.toLocaleLowerCase() == languageCode) === undefined) {
+      res.status(400).send({
+        status: "document language not valid",
       });
       return;
     }
@@ -123,33 +149,8 @@ exports.getDocLocales = async function (req, res) {
       id: req.params.docId,
       archived: false,
     }).exec();
-    const allRegions = docVariants
-      .reduce((arr, curr) => {
-        if (arr.indexOf(curr.regionCode) === -1) {
-          arr.push(curr.regionCode);
-        }
-        return arr;
-      }, [])
-      .map((regCode) =>
-        regions.find(
-          (x) => x.code.toLocaleLowerCase() == regCode.toLocaleLowerCase()
-        )
-      );
-    const allLanguages = docVariants
-      .reduce((arr, curr) => {
-        if (arr.indexOf(curr.languageCode) === -1) {
-          arr.push(curr.languageCode);
-        }
-        return arr;
-      }, [])
-      .map((langCode) =>
-        languages.find(
-          (x) => x.code.toLocaleLowerCase() == langCode.toLocaleLowerCase()
-        )
-      );
     res.json({
-      regions: allRegions,
-      languages: allLanguages,
+      regions: getRegionLanguages(docVariants),
     });
   } catch (err) {
     console.log(err);

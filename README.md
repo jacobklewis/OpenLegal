@@ -27,7 +27,7 @@ Authenticate by either the admin token or the project specific access token usin
 * `DELETE` `/projects/:projectId` Delete a project
 ##### Documents
 * `GET` `/projects/:projectId/locales` Get all regions and locales assciated with project
-* `GET` `/projects/:projectId/documents` Get all project documents (all regions and locales)
+* `GET` `/projects/:projectId/documents?region=us&language=en` Get all project documents (query params optional)
 * `GET` `/projects/:projectId/documents/:docId/:regionCode/:languageCode` Get specific document with a specific region and language code
 * `PUT` `/projects/:projectId/documents/:docId/:regionCode/:languageCode` Create/Update a specific document with a specific region and language code. *Request Body:*
   ```json
