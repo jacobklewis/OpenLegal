@@ -7,6 +7,7 @@ Authenticate by either the admin token or the project specific access token usin
 ##### Locales
 * `GET` `/locales` Get a list of both supported regions and languages
 ##### Projects
+* `GET` `/projects` (Admin Only) View all projects.
 * `POST` `/projects` (Admin Only) Create a new project. Project ID and Project Access Token are provided in the response. *Request Body:*
   ```json
   {

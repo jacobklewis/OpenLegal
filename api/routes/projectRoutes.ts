@@ -9,5 +9,8 @@ module.exports = function (app) {
     .put(projectController.updateProject)
     .delete(projectController.deleteProject);
   // ~ Admin only
-  app.route("/projects").post(projectController.addProject);
+  app
+    .route("/projects")
+    .post(projectController.addProject)
+    .get(projectController.getProjects);
 };

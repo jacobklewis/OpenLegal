@@ -52,3 +52,11 @@ exports.addProject = async function (req, res) {
     res.send(err);
   }
 };
+exports.getProjects = async function (req, res) {
+  try {
+    res.json(await Project.find({}).exec());
+  } catch (err) {
+    console.log(err);
+    res.send(err);
+  }
+};
