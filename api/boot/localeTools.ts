@@ -15,7 +15,12 @@ function getRegionLanguages(obj) {
       const regLangs = allRegions[regCode];
       return {
         ...regions.find((x) => x.code.toLocaleLowerCase() == regCode.toLocaleLowerCase()),
-        languages: regLangs.map((langCode) => languages.find((x) => x.code.toLocaleLowerCase() == langCode.toLocaleLowerCase()))
+        languages: regLangs.reduce((arr, langCode) => {
+            if (!arr.find((x)=>x.code == langCode)){
+                arr.push(languages.find((x) => x.code.toLocaleLowerCase() == langCode.toLocaleLowerCase()))
+            }
+            return arr
+        }, [])
       }
     })
     return allRegionsMapped;
