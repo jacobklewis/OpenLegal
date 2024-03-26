@@ -4,6 +4,12 @@ let Project = mongoose.model("Project");
 
 exports.getProject = async function (req, res) {
   try {
+    if (!req.project) {
+      res.status(404).send({
+        status: "Project not found",
+      });
+      return;
+    }
     res.json(req.project);
   } catch (err) {
     console.log(err);

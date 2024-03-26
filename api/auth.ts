@@ -23,11 +23,19 @@ const isAuthorized = async function (req, res, next) {
 
   const token = req.get("x-api-key");
   try {
-    // console.log("token:" + token);
-    const project = await Project.findOne({
+    let project = await Project.findOne({
       token: token,
     }).exec();
-    // console.log("proj:" + project);
+
+    if(!project) {
+      // Find project if project token is not provided
+      const pathParts = req.path.split('/');
+      if (pathParts.length >= 2) {
+        project = await Project.findOne({
+          id: pathParts[2],
+        }).exec();
+      }
+    }
     if (project) {
       req.project = project;
     }
