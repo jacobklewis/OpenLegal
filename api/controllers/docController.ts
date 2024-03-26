@@ -7,6 +7,12 @@ let Doc = mongoose.model("Doc");
 
 exports.getAllDocs = async function (req, res) {
   try {
+    if (!req.project) {
+      res.status(404).send({
+        status: "Project not found",
+      });
+      return;
+    }
     const regionCode = req.query.region?.toLocaleLowerCase();
     const languageCode = req.query.language?.toLocaleLowerCase();
     if (regionCode && !regions.find((r)=>r.code.toLocaleLowerCase() == regionCode)) {
@@ -41,6 +47,12 @@ exports.getAllDocs = async function (req, res) {
 
 exports.getProjectLocales = async function (req, res) {
   try {
+    if (!req.project) {
+      res.status(404).send({
+        status: "Project not found",
+      });
+      return;
+    }
     const docs = await Doc.find({
       projectId: req.project.id,
       archived: false,
@@ -62,6 +74,12 @@ exports.getProjectLocales = async function (req, res) {
 
 exports.getDoc = async function (req, res) {
   try {
+    if (!req.project) {
+      res.status(404).send({
+        status: "Project not found",
+      });
+      return;
+    }
     const doc = await Doc.findOne({
       projectId: req.project.id,
       id: req.params.docId,
@@ -84,6 +102,12 @@ exports.getDoc = async function (req, res) {
 
 exports.updateDoc = async function (req, res) {
   try {
+    if (!req.project) {
+      res.status(404).send({
+        status: "Project not found",
+      });
+      return;
+    }
     const projectId = req.project.id;
     const docId = req.params.docId;
     const regionCode = req.params.regionCode.toLocaleLowerCase();
@@ -144,6 +168,12 @@ exports.updateDoc = async function (req, res) {
 
 exports.getDocLocales = async function (req, res) {
   try {
+    if (!req.project) {
+      res.status(404).send({
+        status: "Project not found",
+      });
+      return;
+    }
     const docVariants = await Doc.find({
       projectId: req.project.id,
       id: req.params.docId,
