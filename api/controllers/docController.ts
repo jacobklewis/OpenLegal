@@ -100,6 +100,63 @@ exports.getDoc = async function (req, res) {
   }
 };
 
+exports.getDocHistory = async function (req, res) {
+  try {
+    if (!req.project) {
+      res.status(404).send({
+        status: "Project not found",
+      });
+      return;
+    }
+    const docs = await Doc.find({
+      projectId: req.project.id,
+      id: req.params.docId,
+      regionCode: req.params.regionCode.toLocaleLowerCase(),
+      languageCode: req.params.languageCode.toLocaleLowerCase(),
+    }).exec();
+    if (docs.length == 0) {
+      res.status(404).send({
+        status: "doc not found",
+      });
+      return;
+    }
+    res.json(docs);
+  } catch (err) {
+    console.log(err);
+    res.send(err);
+  }
+
+}
+
+exports.getDocByHistoryId = async function (req, res) {
+  try {
+    if (!req.project) {
+      res.status(404).send({
+        status: "Project not found",
+      });
+      return;
+    }
+    const doc = await Doc.findOne({
+      projectId: req.project.id,
+      id: req.params.docId,
+      regionCode: req.params.regionCode.toLocaleLowerCase(),
+      languageCode: req.params.languageCode.toLocaleLowerCase(),
+      version: req.params.historyId,
+    }).exec();
+    if (!doc) {
+      res.status(404).send({
+        status: "doc not found",
+      });
+      return;
+    }
+    res.json(doc);
+  } catch (err) {
+    console.log(err);
+    res.send(err);
+  }
+
+}
+
 exports.updateDoc = async function (req, res) {
   try {
     if (!req.project) {
