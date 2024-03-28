@@ -4,7 +4,6 @@ import mongoose from "mongoose";
 import { getRegionLanguages } from "../boot/localeTools";
 let Doc = mongoose.model("Doc");
 
-
 exports.getAllDocs = async function (req, res) {
   try {
     if (!req.project) {
@@ -15,13 +14,19 @@ exports.getAllDocs = async function (req, res) {
     }
     const regionCode = req.query.region?.toLocaleLowerCase();
     const languageCode = req.query.language?.toLocaleLowerCase();
-    if (regionCode && !regions.find((r)=>r.code.toLocaleLowerCase() == regionCode)) {
+    if (
+      regionCode &&
+      !regions.find((r) => r.code.toLocaleLowerCase() == regionCode)
+    ) {
       res.status(400).send({
         status: "document region not valid",
       });
       return;
     }
-    if (languageCode && !languages.find((l)=>l.code.toLocaleLowerCase() == languageCode)) {
+    if (
+      languageCode &&
+      !languages.find((l) => l.code.toLocaleLowerCase() == languageCode)
+    ) {
       res.status(400).send({
         status: "document language not valid",
       });
@@ -30,12 +35,12 @@ exports.getAllDocs = async function (req, res) {
     const q = {
       projectId: req.project.id,
       archived: false,
+    };
+    if (regionCode) {
+      q["regionCode"] = regionCode;
     }
-    if (regionCode){
-      q["regionCode"] = regionCode
-    }
-    if (languageCode){
-      q["languageCode"] = languageCode
+    if (languageCode) {
+      q["languageCode"] = languageCode;
     }
     const docs = await Doc.find(q).exec();
     res.json(docs);
@@ -108,6 +113,12 @@ exports.getDocHistory = async function (req, res) {
       });
       return;
     }
+    if (!req.writeAccess) {
+      res.status(403).send({
+        status: "Forbidden",
+      });
+      return;
+    }
     const docs = await Doc.find({
       projectId: req.project.id,
       id: req.params.docId,
@@ -125,14 +136,19 @@ exports.getDocHistory = async function (req, res) {
     console.log(err);
     res.send(err);
   }
-
-}
+};
 
 exports.getDocByHistoryId = async function (req, res) {
   try {
     if (!req.project) {
       res.status(404).send({
         status: "Project not found",
+      });
+      return;
+    }
+    if (!req.writeAccess) {
+      res.status(403).send({
+        status: "Forbidden",
       });
       return;
     }
@@ -154,14 +170,19 @@ exports.getDocByHistoryId = async function (req, res) {
     console.log(err);
     res.send(err);
   }
-
-}
+};
 
 exports.updateDoc = async function (req, res) {
   try {
     if (!req.project) {
       res.status(404).send({
         status: "Project not found",
+      });
+      return;
+    }
+    if (!req.writeAccess) {
+      res.status(403).send({
+        status: "Forbidden",
       });
       return;
     }
@@ -176,13 +197,19 @@ exports.updateDoc = async function (req, res) {
       });
       return;
     }
-    if (regions.find((r)=>r.code.toLocaleLowerCase() == regionCode) === undefined) {
+    if (
+      regions.find((r) => r.code.toLocaleLowerCase() == regionCode) ===
+      undefined
+    ) {
       res.status(400).send({
         status: "document region not valid",
       });
       return;
     }
-    if (languages.find((l)=>l.code.toLocaleLowerCase() == languageCode) === undefined) {
+    if (
+      languages.find((l) => l.code.toLocaleLowerCase() == languageCode) ===
+      undefined
+    ) {
       res.status(400).send({
         status: "document language not valid",
       });

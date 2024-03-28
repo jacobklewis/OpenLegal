@@ -12,10 +12,14 @@ module.exports = function (app) {
     .get(docController.getDoc)
     .put(docController.updateDoc);
   app
-    .route("/projects/:projectId/documents/:docId/:regionCode/:languageCode/history")
+    .route(
+      "/projects/:projectId/documents/:docId/:regionCode/:languageCode/history"
+    )
     .get(docController.getDocHistory);
   app
-    .route("/projects/:projectId/documents/:docId/:regionCode/:languageCode/history/:historyId")
+    .route(
+      "/projects/:projectId/documents/:docId/:regionCode/:languageCode/history/:historyId"
+    )
     .get(docController.getDocByHistoryId);
   app
     .route("/projects/:projectId/documents/:docId/locales")

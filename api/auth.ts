@@ -26,10 +26,17 @@ const isAuthorized = async function (req, res, next) {
     let project = await Project.findOne({
       token: token,
     }).exec();
+    if (!project) {
+      project = await Project.findOne({
+        readToken: token,
+      }).exec();
+    } else {
+      req.writeAccess = true;
+    }
 
-    if(!project) {
+    if (!project) {
       // Find project if project token is not provided
-      const pathParts = req.path.split('/');
+      const pathParts = req.path.split("/");
       if (pathParts.length >= 2) {
         project = await Project.findOne({
           id: pathParts[2],
@@ -56,6 +63,7 @@ const isAuthorized = async function (req, res, next) {
     });
     return;
   } else {
+    req.writeAccess = true;
     return next();
   }
 };

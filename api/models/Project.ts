@@ -6,6 +6,7 @@ var ProjectSchema = new Schema({
     type: String,
   },
   token: String,
+  readToken: String,
   name: String,
   documentIds: [String],
   owner: String,
