@@ -2,11 +2,10 @@
 module.exports = function (app) {
   var docController = require("../controllers/docController");
 
+  app.route("/projects/:projectId/preview").get(docController.getPreview);
+
   // Documents
   app.route("/projects/:projectId/documents").get(docController.getAllDocs);
-  app
-    .route("/projects/:projectId/documents/preview")
-    .get(docController.getAllDocsPreview);
   app
     .route("/projects/:projectId/locales")
     .get(docController.getProjectLocales);

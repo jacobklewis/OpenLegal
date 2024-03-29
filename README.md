@@ -35,8 +35,8 @@ Authenticate by either the admin token or the project specific access token usin
 ##### Documents
 
 - `GET` `/projects/:projectId/locales` Get all regions and locales assciated with project
+- `GET` `/projects/:projectId/preview` Get project preview (document tree)
 - `GET` `/projects/:projectId/documents?region=us&language=en` Get all project documents (query params optional)
-- `GET` `/projects/:projectId/documents/preview` Get all project documents preview (document tree)
 - `GET` `/projects/:projectId/documents/:docId/:regionCode/:languageCode` Get specific document with a specific region and language code
 - `GET` `/projects/:projectId/documents/:docId/:regionCode/:languageCode/history` Get document history
 - `GET` `/projects/:projectId/documents/:docId/:regionCode/:languageCode/history/:historyId` Get a specific document from history
