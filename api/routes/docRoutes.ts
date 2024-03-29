@@ -5,6 +5,9 @@ module.exports = function (app) {
   // Documents
   app.route("/projects/:projectId/documents").get(docController.getAllDocs);
   app
+    .route("/projects/:projectId/documents/preview")
+    .get(docController.getAllDocsPreview);
+  app
     .route("/projects/:projectId/locales")
     .get(docController.getProjectLocales);
   app

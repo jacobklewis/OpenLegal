@@ -2,6 +2,7 @@ import regions from "../boot/regions";
 import languages from "../boot/languages";
 import mongoose from "mongoose";
 import { getRegionLanguages } from "../boot/localeTools";
+import exp = require("constants");
 let Doc = mongoose.model("Doc");
 
 exports.getAllDocs = async function (req, res) {
@@ -44,6 +45,42 @@ exports.getAllDocs = async function (req, res) {
     }
     const docs = await Doc.find(q).exec();
     res.json(docs);
+  } catch (err) {
+    console.log(err);
+    res.send(err);
+  }
+};
+
+exports.getAllDocsPreview = async function (req, res) {
+  try {
+    if (!req.project) {
+      res.status(404).send({
+        status: "Project not found",
+      });
+      return;
+    }
+    const q = {
+      projectId: req.project.id,
+      archived: false,
+    };
+    const docs = await Doc.find(q).exec();
+    const tree = {};
+    docs.forEach((doc) => {
+      const { id, regionCode, languageCode } = doc;
+      if (!tree[id]) {
+        tree[id] = {};
+      }
+      if (!tree[id][regionCode]) {
+        tree[id][regionCode] = {};
+      }
+      tree[id][regionCode][languageCode] = {
+        name: doc.name,
+        version: doc.version,
+        regionCode: doc.regionCode,
+        languageCode: doc.languageCode,
+      };
+    });
+    res.json(tree);
   } catch (err) {
     console.log(err);
     res.send(err);
