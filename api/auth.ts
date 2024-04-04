@@ -33,6 +33,12 @@ const isAuthorized = async function (req, res, next) {
     } else {
       req.writeAccess = true;
     }
+    if (project) {
+      req.project = project;
+    }
+    if (project && req.path.indexOf("/" + project.id) != -1) {
+      return next();
+    }
 
     if (!project) {
       // Find project if project token is not provided
@@ -45,9 +51,6 @@ const isAuthorized = async function (req, res, next) {
     }
     if (project) {
       req.project = project;
-    }
-    if (project && req.path.indexOf("/" + project.id) != -1) {
-      return next();
     }
   } catch (err) {
     console.log(err);
