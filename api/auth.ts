@@ -18,19 +18,21 @@ const isAuthorized = async function (req, res, next) {
     }
   });
   if (ignore) {
+    console.log("ignore");
     return next();
   }
 
   const token = req.get("x-api-key");
+  console.log("token", token);
   try {
     let project = await Project.findOne({
       token: token,
     }).exec();
-    if (!project) {
+    if (!project && token) {
       project = await Project.findOne({
         readToken: token,
       }).exec();
-    } else {
+    } else if (token) {
       req.writeAccess = true;
     }
     if (project) {
@@ -59,6 +61,7 @@ const isAuthorized = async function (req, res, next) {
     });
     return;
   }
+  console.log("token", token);
   // Admin Token
   if (token != process.env.ADMIN_TOKEN) {
     res.status(401).send({
@@ -67,6 +70,7 @@ const isAuthorized = async function (req, res, next) {
     return;
   } else {
     req.writeAccess = true;
+    console.log("next admin");
     return next();
   }
 };
